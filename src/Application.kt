@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import com.github.javafaker.Faker
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -23,17 +24,19 @@ fun Application.module(testing: Boolean = false) {
         get("/") {
             call.respondText("Hello Backend!", contentType = ContentType.Text.Plain)
         }
-        get("/json") {
+        get("/joke") {
+            val chuck = Faker.instance().chuckNorris()
+
             val status = "success"
-            val id = 1
-            val text = "Example JSON data string"
+            val id = chuck.hashCode()
+            val joke = chuck.fact()
 
             call.respond(
                 mapOf(
                     "status" to status,
                     "value" to mapOf(
                         "id" to id,
-                        "text" to text
+                        "joke" to joke
                     )
                 )
             )
