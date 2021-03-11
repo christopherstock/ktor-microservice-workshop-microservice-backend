@@ -8,12 +8,17 @@ import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import com.github.javafaker.Faker
+import io.nats.client.Connection
+import io.nats.client.Nats
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    val natsConnection: Connection = Nats.connect()
+    natsConnection.publish("backend.hello", "Hello NATS Event Bus from Backend!".toByteArray())
+
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
