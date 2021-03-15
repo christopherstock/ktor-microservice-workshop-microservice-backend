@@ -8,8 +8,7 @@ import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import com.github.javafaker.Faker
-import io.nats.client.Connection
-import io.nats.client.Nats
+import io.nats.client.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -18,6 +17,10 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     val natsConnection: Connection = Nats.connect()
     natsConnection.publish("backend.hello", "Hello NATS Event Bus from Backend!".toByteArray())
+    natsConnection.createDispatcher { message ->
+        val joke = Faker.instance().chuckNorris().fact()
+        natsConnection.publish("backend.joked", joke.toByteArray())
+    }.subscribe("backend.joke")
 
     install(ContentNegotiation) {
         jackson {
